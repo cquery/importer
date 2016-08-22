@@ -1,5 +1,5 @@
 package lib
 
 type Resources interface {
-	SQL() string
+	Update(updater Updater) error
 }

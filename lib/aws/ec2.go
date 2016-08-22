@@ -1,43 +1,29 @@
 package aws
 
 import (
+	"github.com/cquery/importer/lib"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
-
-	"bytes"
-	"fmt"
-	"strings"
-)
-
-const (
-	SQL_UPSERT_1 = "UPSERT INTO ec2 "
-	SQL_UPSERT_2 = "(instance_id,image_id,instance_type,state_name) "
-	SQL_UPSERT_3 = "VALUES ( "
-	SQL_UPSERT_0 = ")\n"
-	SQL_V        = `'%s'`
 )
 
 type EC2Resources []*ec2.Reservation
 
-//TODO(anarcher): SQL(sqlbuilder *sqlbuilder.Builder) error { ...
-func (e EC2Resources) SQL() string {
-	var buf bytes.Buffer
+func (e EC2Resources) Update(updater lib.Updater) error {
 	for _, r := range e {
 		for _, i := range r.Instances {
-			//els := []string{*i.InstanceId, *i.ImageId, *i.VpcId}
-			els := []string{fmt.Sprintf(SQL_V, *i.InstanceId),
-				fmt.Sprintf(SQL_V, *i.ImageId),
-				fmt.Sprintf(SQL_V, *i.InstanceType),
-				fmt.Sprintf(SQL_V, *i.State.Name)}
-			buf.WriteString(SQL_UPSERT_1)
-			buf.WriteString(SQL_UPSERT_2)
-			buf.WriteString(SQL_UPSERT_3)
-			buf.WriteString(strings.Join(els, ", "))
-			buf.WriteString(SQL_UPSERT_0)
+			updateSet := updater.Set("ec2")
+			updateSet.AddString("instance_id", *i.InstanceId)
+			updateSet.AddString("image_id", *i.ImageId)
+			updateSet.AddString("instance_type", *i.InstanceType)
+			updateSet.AddString("state_name", *i.State.Name)
+			if err := updater.Update(updateSet); err != nil {
+				return err
+			}
 		}
 	}
-	return buf.String()
+	return nil
 }
 
 type EC2APICaller struct {
