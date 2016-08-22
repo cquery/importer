@@ -1,0 +1,16 @@
+version: '2'
+services:
+    roach1:
+        image: cockroachdb/cockroach:beta-20160728
+        command: start  --insecure
+        ports:
+            - "26257:26257"
+            - "8080:8080"
+        volumes:
+            - ./db/cockroach-data/roach1:/cockroach/cockroach-data
+        networks: 
+            - roachnet
+networks:
+    roachnet:
+        driver: bridge
+

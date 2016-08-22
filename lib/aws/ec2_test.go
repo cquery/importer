@@ -19,7 +19,7 @@ func Test_EC2APICaller(t *testing.T) {
 		Region: aws.String(os.Getenv("AWS_REGION")),
 	}
 	caller := NewEC2APICaller(cfg)
-	res, err := caller.Run()
+	res, err := caller.Call()
 	if err != nil {
 		t.Error(err)
 	}

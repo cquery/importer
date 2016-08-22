@@ -30,7 +30,7 @@ type EC2APICaller struct {
 	service *ec2.EC2
 }
 
-func NewEC2APICaller(awsConfig *aws.Config) *EC2APICaller {
+func NewEC2APICaller(awsConfig *aws.Config) lib.APICaller {
 
 	sess, _ := session.NewSession()
 	svc := ec2.New(sess, awsConfig)
@@ -41,7 +41,7 @@ func NewEC2APICaller(awsConfig *aws.Config) *EC2APICaller {
 	return e
 }
 
-func (e *EC2APICaller) Run() (EC2Resources, error) {
+func (e *EC2APICaller) Call() (lib.Resources, error) {
 	params := &ec2.DescribeInstancesInput{}
 	resp, err := e.service.DescribeInstances(params)
 	if err != nil {
@@ -50,4 +50,8 @@ func (e *EC2APICaller) Run() (EC2Resources, error) {
 
 	res := EC2Resources(resp.Reservations)
 	return res, err
+}
+
+func init() {
+	Add("ec2", NewEC2APICaller)
 }

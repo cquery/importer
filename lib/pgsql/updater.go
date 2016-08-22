@@ -18,7 +18,7 @@ type Updater struct {
 	db *sql.DB
 }
 
-func NewUpdater(dataSourceName string) (*Updater, error) {
+func NewUpdater(dataSourceName string) (lib.Updater, error) {
 
 	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
@@ -59,4 +59,8 @@ func (u *Updater) Update(sets ...*lib.UpdateSet) error {
 	}
 
 	return nil
+}
+
+func init() {
+	Add("pgsql", NewUpdater)
 }
