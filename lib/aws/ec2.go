@@ -18,6 +18,15 @@ func (e EC2Resources) Update(updater lib.Updater) error {
 			updateSet.AddString("image_id", *i.ImageId)
 			updateSet.AddString("instance_type", *i.InstanceType)
 			updateSet.AddString("state_name", *i.State.Name)
+			if i.PrivateIpAddress != nil {
+				updateSet.AddString("private_ip", *i.PrivateIpAddress)
+			}
+
+			for _, t := range i.Tags {
+				if *t.Key == "Name" {
+					updateSet.AddString("name", *t.Value)
+				}
+			}
 			if err := updater.Update(updateSet); err != nil {
 				return err
 			}
